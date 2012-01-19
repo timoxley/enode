@@ -70,16 +70,7 @@ describe('slave', function() {
       }], function() {
         done()
       })
-
     })
-    //it('can get sync info from master', function(done) {
-      //master.sequence = 0
-      //slave.sequence = 0
-      //slave.needsSync(function(needsSync) {
-        //assert.ok(!needsSync)
-        //done()
-      //})
-    //})
   })
 })
 
