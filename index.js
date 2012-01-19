@@ -1,3 +1,4 @@
-var Capre = module.exports = exports = {
-  slave 
+var DNodeHost = module.exports = exports = {
+  client = require('./lib/client'),
+  host = require('./lib/host')
 }
