@@ -3,18 +3,18 @@
 var assert = require('assert')
 var async = require('async')
 
-var Host = require('../lib/host')
+var Server = require('../lib/server')
 var Client = require('../lib/client')
 
 var PORT = 5000
 
 describe('client', function() {
-  var host, client, remote
+  var server, client, remote
   describe('connection', function() {
     after(function(done) {
-      host.shutdown(function() {
+      server.shutdown(function() {
         client.shutdown(function() {
-          host = null
+          server = null
           client = null
           done()
         })
@@ -23,8 +23,8 @@ describe('client', function() {
 
     afterEach(function(done) {
       async.parallel([function(next) {
-        if (host) {
-          host.shutdown(next) 
+        if (server) {
+          server.shutdown(next) 
         } else {
           next()
         }
@@ -47,7 +47,7 @@ describe('client', function() {
       client = new Client(PORT, function() {
         done()
       })
-      host = new Host(PORT)
+      server = new Server(PORT)
 
     })
     it('fires ready when ready', function(done) {
@@ -55,10 +55,10 @@ describe('client', function() {
       client.on('ready', function() {
         done()
       })
-      host = new Host(PORT)
+      server = new Server(PORT)
     })
-    it('can connect to a host', function(done) {
-      host = new Host(PORT)
+    it('can connect to a server', function(done) {
+      server = new Server(PORT)
       client = new Client(PORT)
 
       client.once('ready', function(remote) {
@@ -67,22 +67,43 @@ describe('client', function() {
       })
     })
     it('can shut down a client', function(done) {
-      host = new Host(PORT)
+      server = new Server(PORT)
       client = new Client(PORT)
 
       client.once('ready', function(remote) {
         client.shutdown(function() {
-          done()
+          server.once('connected', function() {
+            throw new Error('Should not connect!')
+          })
+          setTimeout(function() {
+            done()
+          }, 30)
         })
       })
     })
-    it('can access host api', function(done) {
+    it('can shut down a client and listen for shutdown event', function(done) {
+      server = new Server(PORT)
+      client = new Client(PORT)
+
+      client.once('ready', function(remote) {
+        client.once('shutdown', function() {
+          server.once('connected', function() {
+            throw new Error('Should not connect!')
+          })
+          setTimeout(function() {
+            done()
+          }, 30)
+        })
+        client.shutdown()
+      })
+    })
+    it('can access server api', function(done) {
       var api = {
         test: function(callback) {
           callback(null, 'success')
         }
       }
-      host = new Host(PORT, api)
+      server = new Server(PORT, api)
       client = new Client(PORT)
 
       client.once('ready', function(remote) {
@@ -94,27 +115,27 @@ describe('client', function() {
         })
       })
     })
-    it('won\'t crash if host is down', function(done) {
+    it('won\'t crash if server is down', function(done) {
       client = new Client(PORT)
       assert.ok(client)
       done()
     })
-    it('won\'t disconnect client and will buffer commands if host is down for some other reason than a shutdown', function(done) {
+    it('won\'t disconnect client and will buffer commands if server is down for some other reason than a shutdown', function(done) {
       var api = {
         test: function(callback) {
           callback(null, 'success')
         }
       }
-      host = new Host(PORT, api, function() {
-        host.server.once('close', function() {
+      server = new Server(PORT, api, function() {
+        server.dnode.once('close', function() {
           client = new Client(PORT, function(remote) {
             remote.test(function(err, value) {
               done()
             })
           })
-          host.listen(PORT)
+          server.listen(PORT)
         })
-        host.server.close()
+        server.dnode.close()
       })
     })
   })
