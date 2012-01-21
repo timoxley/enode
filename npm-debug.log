@@ -1,0 +1,40 @@
+info it worked if it ends with ok
+verbose cli [ 'node', '/usr/local/bin/npm', 'test' ]
+info using npm@1.1.0-beta-10
+info using node@v0.6.7
+verbose /usr/local/bin/node node symlink
+verbose config file /Users/secoif/.npmrc
+verbose config file /usr/local/etc/npmrc
+verbose config file /usr/local/lib/node_modules/npm/npmrc
+verbose caching /Users/secoif/Projects/groupdock/libs/enode/package.json
+verbose loadDefaults enode@0.0.1
+verbose run-script [ 'pretest', 'test', 'posttest' ]
+info pretest enode@0.0.1
+info test enode@0.0.1
+verbose unsafe-perm in lifecycle true
+silly exec sh "-c" "mocha -R spec tests/*"
+silly spawning [ 'sh',
+silly spawning   [ '-c', 'mocha -R spec tests/*' ],
+silly spawning   '/Users/secoif/Projects/groupdock/libs/enode' ]
+info enode@0.0.1 Failed to exec test script
+ERR! enode@0.0.1 test: `mocha -R spec tests/*`
+ERR! `sh "-c" "mocha -R spec tests/*"` failed with 2
+ERR! 
+ERR! Failed at the enode@0.0.1 test script.
+ERR! This is most likely a problem with the enode package,
+ERR! not with npm itself.
+ERR! Tell the author that this fails on your system:
+ERR!     mocha -R spec tests/*
+ERR! You can get their info via:
+ERR!     npm owner ls enode
+ERR! There is likely additional logging output above.
+ERR! 
+ERR! System Darwin 11.2.0
+ERR! command "node" "/usr/local/bin/npm" "test"
+ERR! cwd /Users/secoif/Projects/groupdock/libs/enode
+ERR! node -v v0.6.7
+ERR! npm -v 1.1.0-beta-10
+ERR! code ELIFECYCLE
+ERR! message enode@0.0.1 test: `mocha -R spec tests/*`
+ERR! message `sh "-c" "mocha -R spec tests/*"` failed with 2
+verbose exit [ 1, true ]
