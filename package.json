@@ -15,7 +15,8 @@
   },
   "dependencies": {
     "async": "~0.1.15",
-    "dnode": "~0.9.6"
+    "dnode": "https://github.com/secoif/dnode/tarball/master",
+    "upnode": "~0.1.0"
   },
   "devDependencies": {}
 }
