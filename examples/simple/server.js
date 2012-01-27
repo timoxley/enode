@@ -2,7 +2,6 @@ var enode = require('../../index')
 
 var api = {
   whoami: function(callback) {
-    console.log('server whoami')
     callback(null, "server")
   }
 }
@@ -14,4 +13,9 @@ server.on('connect', function(remote, connection) {
   remote.whoami(function(err, value) {
     console.log('server connected to', value)
   })
+  console.log('connected clients', server.connections.length)
+})
+server.on('disconnect', function(connection) {
+  console.log('disconnection', connection.id)
+  console.log('connected clients', server.connections.length)
 })
