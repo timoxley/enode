@@ -1,35 +1,39 @@
 'use strict'
 
 var assert = require('assert')
+var async = require('async')
 
 var Server = require('../lib/server')
 var Client = require('../lib/client')
 
 var PORT = 5000
 
-var isPortTaken = function(PORT, callback) {
-  var net = require('net')
-  var tester = net.createServer()
-  tester.once('error', function (err) {
-    if (err.code == 'EADDRINUSE') {
-      callback(null, true)
-    } else {
-      callback(err)
-    }
-  })
-  tester.once('listening', function() {
-    tester.once('close', function() {
-      callback(null, false)
-    })
-    tester.close()
-  })
-  tester.listen(PORT)
-}
-
 describe('client', function() {
-  var server
-  before(function(done) {
-    var server = new Server()
+  var server, client
+  function shutdown(done) {
+    async.parallel([
+      function(next) {
+        if (server) {
+          server.shutdown(next)
+        } else {
+          next()
+        }
+      },
+      function(next) {
+        if (client) {
+          client.shutdown(next)
+        } else {
+          next()
+        }
+      }
+    ], function(err) {
+      done(err)
+    })
+  }
+  beforeEach(shutdown)
+  afterEach(shutdown)
+    beforeEach(function(done) {
+    server = new Server()
     server.on('error', function(err) {
       throw new Error(err)
     })
@@ -37,8 +41,8 @@ describe('client', function() {
       done()
     })
   })
+
   describe('shutdown', function() {
-    var client
     it('will close connection on shutdown', function(done) {
       client = new Client().connect(PORT)
       client.on('ready', function(api, connection) {
@@ -61,21 +65,6 @@ describe('client', function() {
     })
   })
   describe('listening on a port', function() {
-    var client
-    beforeEach(function(done) {
-      if (client) {
-        client.shutdown(done)
-      } else {
-        done()
-      }
-    })
-    afterEach(function(done) {
-      if (client) {
-        client.shutdown(done)
-      } else {
-        done()
-      }
-    })
     it('will use callback when listening on port', function(done) {
       client = new Client().connect(PORT, function() {
         done()

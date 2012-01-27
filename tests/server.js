@@ -1,5 +1,6 @@
 var assert = require('assert')
 
+var async = require('async')
 var Server = require('../lib/server')
 
 var PORT = 5000
@@ -24,9 +25,32 @@ var isPortTaken = function(PORT, callback) {
 }
 
 describe('server', function() {
+  var client, server
+  function shutdown(done) {
+    async.parallel([
+      function(next) {
+        if (server) {
+          server.shutdown(next)
+        } else {
+          next()
+        }
+      },
+      function(next) {
+        if (client) {
+          client.shutdown(next)
+        } else {
+          next()
+        }
+      }
+    ], function(err) {
+      done(err)
+    })
+  }
+  beforeEach(shutdown)
+  afterEach(shutdown)
   describe('shutdown', function() {
     it('will close port on shutdown', function(done) {
-      var server = new Server()
+      server = new Server()
       server.on('error', function(err) {
         throw new Error(err)
         done()
@@ -42,7 +66,7 @@ describe('server', function() {
       })
     })
     it('won\'t error if shutdown twice', function(done) {
-      var server = new Server()
+      server = new Server()
       server.on('error', function(err) {
         throw new Error(err)
         done()
@@ -61,21 +85,7 @@ describe('server', function() {
     })
   })
   describe('listening on a port', function() {
-    var server
-    beforeEach(function(done) {
-      if (server) {
-        server.shutdown(done)
-      } else {
-        done()
-      }
-    })
-    afterEach(function(done) {
-      if (server) {
-        server.shutdown(done)
-      } else {
-        done()
-      }
-    })
+    server
     it('will use callback when listening on port', function(done) {
       server = new Server().listen(PORT, function() {
         isPortTaken(PORT, function(err, isTaken) {
