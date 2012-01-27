@@ -35,7 +35,7 @@ var api = {
   }
 }
 
-var server = new enode.server(api).listen(5000)
+var server = new enode.Server(api).listen(5000)
 
 server.on('connect', function(remote, connection) {
   console.log('new connection', connection.id)
@@ -63,7 +63,7 @@ var api = {
   }
 }
 
-var client = new enode.client(api).connect(5000)
+var client = new enode.Client(api).connect(5000)
 
 client.on('ready', function(remote) {
   remote.whoami(function(err, value) {

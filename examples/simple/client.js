@@ -6,7 +6,7 @@ var api = {
   }
 }
 
-var client = new enode.client(api).connect(5000)
+var client = new enode.Client(api).connect(5000)
 
 client.on('ready', function(remote) {
   remote.whoami(function(err, value) {

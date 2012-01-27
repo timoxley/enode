@@ -6,7 +6,7 @@ var api = {
   }
 }
 
-var server = new enode.server(api).listen(5000)
+var server = new enode.Server(api).listen(5000)
 
 server.on('connect', function(remote, connection) {
   console.log('new connection', connection.id)
