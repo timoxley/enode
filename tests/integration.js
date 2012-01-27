@@ -41,7 +41,7 @@ describe('handing an API', function() {
       }
       server = new Server(api).listen(PORT)
       client = new Client().connect(PORT)
-      client.on('ready', function(remote) {
+      client.once('ready', function(remote) {
         assert.equal(remote.status, "working")
         remote.whoami(function(err, val) {
           assert.equal(val, "server")
@@ -54,20 +54,39 @@ describe('handing an API', function() {
       var connectionId
       var api = {
         status: "working",
-        whoami: function(callback, remote, connection) {
-          assert.ok(remote)
-          assert.ok(connection)
-          assert.equal(connection.id, connectionId)
-          callback(null, connection)
+        whoami: function(callback, meta) {
+          assert.ok(meta.remote)
+          assert.ok(meta.connection)
+          assert.equal(meta.connection.id, connectionId)
+          callback(null, meta.connection)
         }
       }
       server = new Server(api).listen(PORT)
-      server.on('connect', function(remote, connection) {
+      server.once('connect', function(remote, connection) {
         connectionId = connection.id
       })
       client = new Client().connect(PORT)
-      client.on('ready', function(remote, connection) {
+      client.once('ready', function(remote, connection) {
         remote.whoami(function(err, val) {
+          done()
+        })
+      })
+    })
+    it('can send args', function(done) {
+      var connectionId
+      var api = {
+        say: function(word, callback, meta) {
+          callback(null, 'I said ' + word)
+        }
+      }
+      server = new Server(api).listen(PORT)
+      server.once('connect', function(remote, connection) {
+        connectionId = connection.id
+      })
+      client = new Client().connect(PORT)
+      client.once('ready', function(remote, connection) {
+        remote.say('cows.', function(err, value) {
+          assert.equal(value, 'I said cows.')
           done()
         })
       })
@@ -82,7 +101,7 @@ describe('handing an API', function() {
         }
       }
       server = new Server().listen(PORT)
-      server.on('connect', function(remote) {
+      server.once('connect', function(remote) {
         assert.equal(remote.status, "working")
         remote.whoami(function(err, val) {
           assert.equal(val, "client")
@@ -97,26 +116,43 @@ describe('handing an API', function() {
       var connectionId
       var api = {
         status: "working",
-        whoami: function(callback, remote, connection) {
-          assert.ok(remote)
-          assert.ok(connection)
-          assert.equal(connection.id, connectionId)
-          callback(null, connection)
+        whoami: function(callback, meta) {
+          assert.ok(meta.remote)
+          assert.ok(meta.connection)
+          assert.equal(meta.connection.id, connectionId)
+          callback(null, meta.connection)
         }
       }
       server = new Server().listen(PORT)
-      server.on('connect', function(remote, connection) {
-        remote.whoami(function(err, val) {
+      server.once('connect', function(remote, connection) {
+        remote.whoami(function(err, value) {
           done()
         })
       })
       client = new Client(api).connect(PORT)
-      client.on('ready', function(remote, connection) {
+      client.once('ready', function(remote, connection) {
         connectionId = connection.id
       })
     })
-
+    it('can send args', function(done) {
+      var connectionId
+      var api = {
+        say: function(word, callback) {
+          callback(null, 'I said ' + word)
+        }
+      }
+      server = new Server().listen(PORT)
+      server.once('connect', function(remote, connection) {
+        remote.say('cows.', function(err, value) {
+          assert.equal(value, 'I said cows.')
+          server.shutdown(done)
+        })
+      })
+      client = new Client(api).connect(PORT)
+      client.once('ready', function(remote, connection) {
+        connectionId = connection.id
+      })
+    })
   })
-
 })
 
