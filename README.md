@@ -30,8 +30,8 @@ but can also take a callback.
 var enode = require('enode')
 
 var api = {
-  whoami: function(callback) {
-    callback(null, "server")
+  whoami: function(callback, meta) {
+    callback(null, "server " + meta.connection.id))
   }
 }
 
@@ -58,8 +58,8 @@ server.on('disconnect', function(connection) {
 var enode = require('enode')
 
 var api = {
-  whoami: function(callback) {
-    callback(null, "client")
+  whoami: function(callback, meta) {
+    callback(null, "client " + meta.connection.id)
   }
 }
 
