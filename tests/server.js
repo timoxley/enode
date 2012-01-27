@@ -107,69 +107,75 @@ describe('server', function() {
         })
       })
     })
-    describe('connections', function() {
-      it('should emit connect events', function(done) {
-        server = new Server().listen(PORT)
-        server.on('ready', function() {
-          server.on('connect', function(remote, connection) {
-            assert.ok(remote)
-            assert.ok(connection)
-            assert.ok(connection.id)
-            done()
-          })
-          var client = dnode.connect(PORT)
-        })
-      })
-    })
+
   })
-  describe('connection collection', function() {
+  describe('connections', function() {
     beforeEach(function(done) {
       server = new Server().listen(PORT, done)
     })
-    it('should start with zero connections', function() {
-      assert.equal(server.connections.length, 0)
-    })
-    it('should hold connections', function(done) {
-      client = new Client().connect(PORT, function(api, conn) {
-        assert.equal(server.connections.length, 1)
+    it('should emit connect events', function(done) {
+      server.once('connect', function(remote, connection) {
+        assert.ok(remote)
+        assert.ok(connection)
+        assert.ok(connection.id)
         done()
       })
+      var client = dnode.connect(PORT)
     })
-    it('should remove connections', function(done) {
-      client = new Client().connect(PORT, function(api, conn) {
-        assert.equal(server.connections.length, 1)
-        client.shutdown(function() {
-          assert.equal(server.connections.length, 0)
+    it('should emit disconnect events', function(done) {
+      server.once('connect', function(remote, connection) {
+        server.once('disconnect', function() {
+          done()
+        })
+        client.shutdown()
+      })
+      client = new Client().connect(PORT)
+    })
+    describe('server.connections', function() {
+      it('should start with zero connections', function() {
+        assert.equal(server.connections.length, 0)
+      })
+      it('should hold connections', function(done) {
+        client = new Client().connect(PORT, function(api, conn) {
+          assert.equal(server.connections.length, 1)
           done()
         })
       })
-    })
-    it('should remove multiple connections', function(done) {
-      client = new Client().connect(PORT, function(api, conn) {
-        assert.equal(server.connections.length, 1)
-        var client2 = new Client().connect(PORT, function(api, conn) {
-          assert.equal(server.connections.length, 2)
+      it('should remove connections', function(done) {
+        client = new Client().connect(PORT, function(api, conn) {
+          assert.equal(server.connections.length, 1)
           client.shutdown(function() {
-            assert.equal(server.connections.length, 1)
+            assert.equal(server.connections.length, 0)
+            done()
+          })
+        })
+      })
+      it('should remove multiple connections', function(done) {
+        client = new Client().connect(PORT, function(api, conn) {
+          assert.equal(server.connections.length, 1)
+          var client2 = new Client().connect(PORT, function(api, conn) {
+            assert.equal(server.connections.length, 2)
+            client.shutdown(function() {
+              assert.equal(server.connections.length, 1)
+              client2.shutdown(function() {
+                assert.equal(server.connections.length, 0)
+                done()
+              })
+            })
+          })
+        })
+      })
+      it('should hold multiple connections', function(done) {
+        client = new Client().connect(PORT, function(api1, conn1) {
+          assert.equal(server.connections.length, 1)
+          var client2 = new Client().connect(PORT, function(api2, conn2) {
+            assert.equal(server.connections.length, 2)
             client2.shutdown(function() {
-              assert.equal(server.connections.length, 0)
               done()
             })
           })
         })
       })
     })
-    it('should hold multiple connections', function(done) {
-      client = new Client().connect(PORT, function(api1, conn1) {
-        assert.equal(server.connections.length, 1)
-        var client2 = new Client().connect(PORT, function(api2, conn2) {
-          assert.equal(server.connections.length, 2)
-          client2.shutdown(function() {
-            done()
-          })
-        })
-      })
-    })
-
   })
 })
