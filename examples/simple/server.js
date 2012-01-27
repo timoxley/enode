@@ -1,8 +1,8 @@
 var enode = require('../../index')
 
 var api = {
-  whoami: function(callback) {
-    callback(null, "server")
+  whoami: function(callback, remote, connection) {
+    callback(null, "server. connection id: " + connection.id)
   }
 }
 
