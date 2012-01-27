@@ -124,7 +124,8 @@ describe('server', function() {
     })
     it('should emit disconnect events', function(done) {
       server.once('connect', function(remote, connection) {
-        server.once('disconnect', function() {
+        server.once('disconnect', function(disconnected) {
+          assert.equal(connection.id, disconnected.id)
           done()
         })
         client.shutdown()
