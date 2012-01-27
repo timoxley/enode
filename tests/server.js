@@ -111,7 +111,8 @@ describe('server', function() {
       it('should emit connect events', function(done) {
         server = new Server().listen(PORT)
         server.on('ready', function() {
-          server.on('connect', function(connection) {
+          server.on('connect', function(remote, connection) {
+            assert.ok(remote)
             assert.ok(connection)
             assert.ok(connection.id)
             done()

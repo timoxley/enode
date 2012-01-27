@@ -50,18 +50,18 @@ describe('handing an API', function() {
       })
     })
   })
-  it('server can call client methods', function() {
+  it('server can call client methods', function(done) {
     var api = {
       status: "working",
-      talk: function(callback) {
-        callback(null, "blah")
+      whoami: function(callback) {
+        callback(null, "client")
       }
     }
     server = new Server().listen(PORT)
     server.on('connect', function(remote) {
       assert.equal(remote.status, "working")
       remote.whoami(function(err, val) {
-        assert.equal(val, "server")
+        assert.equal(val, "client")
         assert.ok(!err)
         done()
       })
