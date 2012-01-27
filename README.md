@@ -1,19 +1,25 @@
 #eNode
 
-eNode is a simple wrapper around DNode/upnode functionality, simplifying creation and operation of DNode servers and clients. I like DNode, I just found it used some strange patterns.
+eNode is a simple wrapper around DNode/upnode functionality, simplifying 
+creation and operation of DNode servers and clients. I found that DNode
+used some confusing patterns, so I wrapped them up in an 'easier'
+interface, IMO.
 
 ### Features and Differences from DNode
 
-* eNode automatically uses upnode's buffering/reconnecting functionality for 'clients'.
-* All operations take a callback which fires when ready, but also emit corresponding events.
-* The `shutdown` function will shut down both servers and clients
-  (servers normally require a `close()` and an `end()` while a client normally just needs a close(). 
-* All 'connection' handling code is done in the 'connect' event for
-  servers, unlike DNode/upnode where you can set callbacks with the
-DNode/upnode() function, as well as on 'ready' 'remote' 'connection'.
-* Remote API calls get passed the remote/connection properties so they don't necessarily need to be defined inside the scope of connection handler.
-* eNode servers automatically keep track of connections and
-  disconnections, accessible via the server's `connections` Array.
+* eNode makes a sharp distinction between Clients and Servers
+* Upnode's buffering/reconnecting functionality is set up automatically for
+ Clients.
+* All 'connection' handling code is done in the 'connect' event, and the
+  remote api will always be present, if available.
+* Remote API calls get passed remote and connection properties so they don't 
+necessarily need to be defined inside the scope of connection handler.
+* eNode servers automatically keep track of connections and disconnections, 
+accessible via the server's `connections` Array.
+* The `shutdown` function will shut down both servers and clients.
+* All operations take a callback which fires when ready, but also emits
+ corresponding events. e.g. `shutdown()` will emit the 'shutdown' event,
+but can also take a callback.
 
 ## Usage
 
@@ -67,4 +73,15 @@ client.on('ready', function(remote) {
 
 ```
 
+##Todo
 
+* Implement middleware
+* More usage examples
+
+## Contributors
+
+[Tim Oxley](https://github/com/timoxley)
+
+## Sponsor
+
+[Groupdock](https://github.com/groupdock/) 
