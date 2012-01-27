@@ -32,7 +32,7 @@ describe('handing an API', function() {
   beforeEach(shutdown)
   afterEach(shutdown)
 
-  it('client  can call server methods', function(done) {
+  it('client can call server methods', function(done) {
     var api = {
       status: "working",
       whoami: function(callback) {
