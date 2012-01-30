@@ -35,8 +35,15 @@ so I wrapped them up in an 'easier' interface.
 ## Usage
 
 ### Create a Server with an API
+An API can be made up of Functions that take callbacks or  
+Javascript primitive types e.g (Numbers, Strings, Plain Objects, Arrays)
+
+As with DNode, properties on prototypes and return values are ignored.
 
 ```javascript
+
+// Define an API for our Server
+
 
 var api = {
   sendInfo: function(info, callback) {
@@ -45,8 +52,8 @@ var api = {
   }
 }
 
-// create Server with  the supplied API
-// and listen for connections on port 3000
+// Create Server with the supplied API
+// and listen for client connections on port 3000
 var server = new enode.Server(api).listen(3000) 
 
 ```
@@ -55,7 +62,7 @@ var server = new enode.Server(api).listen(3000)
 
 ```javascript
 
-// connect to server running on port 3000
+// Connect to server running on port 3000
 var client = enode.Client().connect(3000)
 
 ```
@@ -64,7 +71,7 @@ var client = enode.Client().connect(3000)
 
 ```javascript
 
-// execute remote method 'getSomeData' from Server
+// Execute remote method 'getSomeData' from Server
 client.once('ready', function(serverAPI, connection) {
   var info = 'bovine'
   serverAPI.sendInfo(info, function(err, returnedData) {
@@ -79,7 +86,9 @@ client.once('ready', function(serverAPI, connection) {
 
 var client
 var api = {
-  shutdown: client.shutdown(callback)
+  shutdown_client: function(callback) {
+    client.shutdown(callback)
+  }
 }
 
 // Clients can have API's too
@@ -91,9 +100,10 @@ client = enode.Client(api).connect(3000)
 
 ```javascript
 
+// 'connect' event is fired every time a Client connects
 server.on('connect', function(clientAPI, connection) {
-  // call remote Client's `shutdown` method
-  clientAPI.shutdown(function(err) {
+  // Call remote Client's `shutdown_client` method
+  clientAPI.shutdown_client(function(err) {
     if (err) return console.log('error shutting down client: ' + connection.id)
     console.log('client shut down: ' + connection.id)
   })
@@ -110,8 +120,8 @@ server.shutdown(function() {
   console.log('Callback: the server shutdown')
 })
 
-// or alternatively
 
+// The 'shutdown' event should execute around same time as shutdown() callback is run
 server.on('shutdown', function() {
   console.log('Event: the server shutdown')
 })
@@ -120,7 +130,6 @@ client.shutdown(function() {
   console.log('Callback: the client shutdown')
 })
 
-// shutdown event should execute around same time as shutdown callback is run
 client.on('shutdown', function() {
   console.log('Event: the client shutdown')
 })
@@ -131,7 +140,8 @@ client.on('shutdown', function() {
 
 ```javascript
 
-// alternative definition format
+// Note APIs can be defined inline, 
+// no need to create a new variable.
 var server = new enode.Server({
   makeError: function(callback) {
     callback(new Error('oops'))
@@ -139,7 +149,7 @@ var server = new enode.Server({
 }).listen(3000)
 
 var client = new enode.Client().connect(3000, function(serverAPI) { 
-  // this connect() callback fires when client is connected 
+  // this callback should receive an `Error` cast to a `String`
   serverAPI.makeError(function(err) {
     console.log(typeof err) // 'string'
     console.log(err) // Error: oops
@@ -150,8 +160,6 @@ var client = new enode.Client().connect(3000, function(serverAPI) {
 ```
 
 ## Example
-
-### Server
 
 ```javascript
 // server.js
@@ -178,8 +186,6 @@ server.on('disconnect', function(connection) {
 })
 
 ```
-
-### Client
 
 ```javascript
 // client.js
