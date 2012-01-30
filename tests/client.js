@@ -64,9 +64,12 @@ describe('client', function() {
       })
     })
   })
-  describe('listening on a port', function() {
+  describe('connecting to a port', function() {
     it('will use callback when listening on port', function(done) {
-      client = new Client().connect(PORT, function() {
+      client = new Client().connect(PORT, function(err, remote, connection) {
+        assert.ok(!err)
+        assert.ok(remote)
+        assert.ok(connection.id)
         done()
       })
     })
