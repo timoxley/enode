@@ -1,9 +1,9 @@
 #eNode
 
 eNode is a simple wrapper around DNode/upnode functionality, simplifying 
-creation and operation of DNode servers and clients. I found that DNode
-used some confusing patterns, so I wrapped them up in an 'easier'
-interface, IMO.
+creation and operation of DNode Servers and Clients. I found that DNode
+used some confusing patterns and made certain operations complicated, 
+so I wrapped them up in an 'easier' interface.
 
 ### Features and Differences from DNode
 
@@ -19,7 +19,7 @@ interface, IMO.
   connection/remote objects.
 * eNode servers automatically keep track of connections and disconnections, 
   accessible via the server's `connections` Array.
-* The `shutdown` function will shut down both servers and clients, in
+* The `shutdown` function will shut down both Servers and Clients, in
   DNode this was a multistep process which fired multiple events. eNode
   will fire 'shutdown'/return callback from `shutdown` when the connection
   is properly shut down.
@@ -27,7 +27,7 @@ interface, IMO.
   corresponding events. e.g. `shutdown()` will emit the 'shutdown' event,
   but can also take a callback.
 * Using straight DNode on Node 0.6.x, if any of your remote calls callback with an `Error`
-  the error arrive at the client as an empty object. eNode finds `Error`
+  the error arrive at the Client as an empty object. eNode finds `Error`
   objects in the data you're returning in your callback, and calls
   toString on them so at least you have some idea of what the error was.
   If you want more information or a different serialisation method, you
@@ -40,8 +40,9 @@ interface, IMO.
 ```javascript
 
 var api = {
-  getSomeData: function(callback) {
-    callback(null, {data: 'some data'})
+  sendInfo: function(info, callback) {
+    // do something with info
+    callback(null, {data: 'got some info: ' + info}) // stupid api
   }
 }
 
@@ -50,7 +51,7 @@ var server = new enode.Server(api).listen(3000)
 
 ```
 
-### Creating a client to connect to a server
+### Creating a client and connecting to a server
 
 ```javascript
 
@@ -59,18 +60,92 @@ var client = enode.Client().connect(3000)
 
 ```
 
-### Executing remote commands from a server
+### Executing server API methods from a client
 
 ```javascript
 
 // execute 'getSomeData' from server
+client.once('ready', function(server, connection) {
+  var info = 'bovine'
+  server.sendInfo(info, function(err, returnedData) {
+    console.log(returnedData.data) // 'got some info: bovine'
+  })
+})
+```
 
-client.once('ready', function(remote, connection) {
-  remote.getSomeData(function(err, returnedData) {
-    console.log(returnedData.data) // 'some data'
+### Creating a client with an API and connecting to a server
+
+```javascript
+
+var client
+var api = {
+  shutdown: client.shutdown(callback)
+}
+client = enode.Client(api).connect(3000)
+
+```
+
+```javascript
+
+server.on('connect', function(client, connection) {
+  client.shutdown(function(err) {
+    if (err) return console.log('error shutting down client: ' + connection.id)
+    console.log('client shut down: ' + connection.id)
   })
 })
 
+```
+
+
+### Shutting down a Server
+
+```javascript
+
+server.shutdown(function() {
+  console.log('Callback: the server shutdown')
+})
+
+// or alternatively
+
+server.on('shutdown', function() {
+  console.log('Event: the server shutdown')
+})
+
+```
+
+### Shutting down a Client
+
+```javascript
+
+server.shutdown(function() {
+  console.log('Callback: the server shutdown')
+})
+// shutdown event should execute around same time as shutdown callback is run
+server.on('shutdown', function() {
+  console.log('Event: the server shutdown')
+})
+
+```
+
+### Returning Errors
+
+```javascript
+
+// alternative definition format
+var server = new enode.Server({
+  makeError: function(callback) {
+    callback(new Error('oops'))
+  }
+}).listen(3000)
+
+var client = new enode.Client().connect(3000, function(remote) { 
+  // this connect() callback fires when client is connected 
+  remote.makeError(function(err) {
+    console.log(typeof err) // 'string'
+    console.log(err) // Error: oops
+    console.log('Error: oops' === err) // true
+  })
+})
 
 ```
 
