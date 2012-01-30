@@ -2,36 +2,33 @@
 
 eNode is a simple wrapper around [DNode](https://github.com/substack/dnode) and
 [upnode](https://github.com/substack/upnode) functionality, simplifying 
-creation and operation of DNode Servers and Clients. I found that DNode
-used some confusing patterns and made certain operations complicated, 
+creation and operation of DNode Servers and Clients. 
+
+### Why 
+I found that DNode used some confusing patterns and made certain operations complicated, 
 so I wrapped them up in an 'easier' interface.
 
 ### Features and Differences from DNode
 
 * eNode makes a sharp distinction between Clients and Servers
-* Automatic buffering of requests and reconnections on lost servers as provided
+* **Automatic buffering of requests and reconnections** on lost servers as provided
   by upnode is configured by default between Servers and Clients
 * All 'connection' handling code is done in the 'connect' event, and
   unlike Dnode, the Servers/Clients don't return fire any callbacks/events 
   until they have recieved the remote's API 
-* Remote API calls get passed remote API & connection properties in a `meta` property 
-  as the last argument passed to every API call. This means you don't necessarily need to
-  define your API inside the scope of connection handler to get access to
+* **Each API call gets passed remote API & connection properties** in a `meta` property 
+  (as the last argument). This means you don't necessarily need to
+  define your API inside the scope of connection handlers to get access to
   connection/remote objects.
-* eNode servers automatically keep track of connections and disconnections, 
-  accessible via the server's `connections` Array.
-* The `shutdown` function will shut down both Servers and Clients, in
-  DNode this was a multistep process which fired multiple events. eNode
-  will fire 'shutdown'/return callback from `shutdown` when the connection
-  is properly shut down.
-* All operations take a callback which fires when ready, but also emits
-  corresponding events. e.g. `shutdown()` will emit the 'shutdown' event,
-  but can also take a callback.
-* Using straight DNode on Node 0.6.x, if any of your remote calls callback with an `Error`
-  the error arrive at the Client as an empty object. eNode finds `Error`
-  objects in the data you're returning in your remote callback, and uses
-  `err.toString()` to convert the Error into a String format like: 'Error: Some error
-  occurred'.
+* **Servers automatically keep a list of connected Clients.**.
+  This is accessible via the server's `connections` Array.
+* **The `shutdown` function on both Servers and Clients simplifies
+  closing down a connection**.
+  Using DNode this was a multistep, strange danceto know when a connection was
+  actually closed.
+* To get around a 'bug' in DNode on 0.6.x, eNode finds `Error` objects in the data you're returning
+  in your remote callback, and uses  `err.toString()` to convert the Error into a String 
+  format like: 'Error: Some error occurred'.
   If you want to transmit more information about Errors, you can provide a different
   serialisation method by simply overriding `serializeError` on eNode Clients & Servers.
 
@@ -68,9 +65,9 @@ var client = enode.Client().connect(3000)
 ```javascript
 
 // execute remote method 'getSomeData' from Server
-client.once('ready', function(server, connection) {
+client.once('ready', function(serverAPI, connection) {
   var info = 'bovine'
-  server.sendInfo(info, function(err, returnedData) {
+  serverAPI.sendInfo(info, function(err, returnedData) {
     console.log(returnedData.data) // 'got some info: bovine'
   })
 })
@@ -94,9 +91,9 @@ client = enode.Client(api).connect(3000)
 
 ```javascript
 
-server.on('connect', function(client, connection) {
+server.on('connect', function(clientAPI, connection) {
   // call remote Client's `shutdown` method
-  client.shutdown(function(err) {
+  clientAPI.shutdown(function(err) {
     if (err) return console.log('error shutting down client: ' + connection.id)
     console.log('client shut down: ' + connection.id)
   })
@@ -141,9 +138,9 @@ var server = new enode.Server({
   }
 }).listen(3000)
 
-var client = new enode.Client().connect(3000, function(remote) { 
+var client = new enode.Client().connect(3000, function(serverAPI) { 
   // this connect() callback fires when client is connected 
-  remote.makeError(function(err) {
+  serverAPI.makeError(function(err) {
     console.log(typeof err) // 'string'
     console.log(err) // Error: oops
     console.log('Error: oops' === err) // true
