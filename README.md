@@ -98,7 +98,7 @@ server.on('connect', function(client, connection) {
 ```
 
 
-### Shutting down a Server
+### Shutting down a Server/Client
 
 ```javascript
 
@@ -112,18 +112,12 @@ server.on('shutdown', function() {
   console.log('Event: the server shutdown')
 })
 
-```
-
-### Shutting down a Client
-
-```javascript
-
-server.shutdown(function() {
-  console.log('Callback: the server shutdown')
+client.shutdown(function() {
+  console.log('Callback: the client shutdown')
 })
 // shutdown event should execute around same time as shutdown callback is run
-server.on('shutdown', function() {
-  console.log('Event: the server shutdown')
+client.on('shutdown', function() {
+  console.log('Event: the client shutdown')
 })
 
 ```
