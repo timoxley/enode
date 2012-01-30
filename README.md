@@ -36,7 +36,7 @@ so I wrapped them up in an 'easier' interface.
 
 ## Usage
 
-### Create a server with an API
+### Create a Server with an API
 
 ```javascript
 
@@ -47,12 +47,12 @@ var api = {
   }
 }
 
-// create server and listen for connections on port 3000
+// create Server and listen for connections on port 3000
 var server = new enode.Server(api).listen(3000) 
 
 ```
 
-### Creating a client and connecting to a server
+### Creating a Client and connecting to a Server
 
 ```javascript
 
@@ -61,7 +61,7 @@ var client = enode.Client().connect(3000)
 
 ```
 
-### Executing server API methods from a client
+### Executing Server API methods from a Client
 
 ```javascript
 
@@ -74,7 +74,7 @@ client.once('ready', function(server, connection) {
 })
 ```
 
-### Creating a client with an API and connecting to a server
+### Creating a Client with an API and connecting to a Server
 
 ```javascript
 
@@ -85,6 +85,8 @@ var api = {
 client = enode.Client(api).connect(3000)
 
 ```
+
+### Calling a Client API
 
 ```javascript
 
