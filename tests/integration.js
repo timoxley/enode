@@ -91,6 +91,51 @@ describe('handing an API', function() {
         })
       })
     })
+    it('can send error args', function(done) {
+      var connectionId
+      var api = {
+        say: function(callback, meta) {
+          callback(new Error('success'))
+        }
+      }
+      server = new Server(api).listen(PORT)
+      server.once('connect', function(remote, connection) {
+        connectionId = connection.id
+      })
+      client = new Client().connect(PORT)
+      client.once('ready', function(remote, connection) {
+        remote.say(function(err, value) {
+          assert.equal(err, 'Error: success')
+          done()
+        })
+      })
+    })
+    it('can use custom error serialisation', function(done) {
+      var connectionId
+      var api = {
+        say: function(callback, meta) {
+          callback(new Error('success'))
+        }
+      }
+      server = new Server(api).listen(PORT)
+      server.once('connect', function(remote, connection) {
+        connectionId = connection.id
+      })
+      client = new Client().connect(PORT)
+      server.serializeError = function(error) {
+        return {
+          message: error.message,
+          name: error.name
+        }
+      }
+
+      client.once('ready', function(remote, connection) {
+        remote.say(function(err, value) {
+          assert.deepEqual(err, {name: 'Error', message: 'success'})
+          done()
+        })
+      })
+    })
   })
   describe('server', function() {
     it('can call client methods', function(done) {
@@ -134,7 +179,7 @@ describe('handing an API', function() {
         connectionId = connection.id
       })
     })
-    it('can send args', function(done) {
+    it('can use custom error serialisation', function(done) {
       var connectionId
       var api = {
         say: function(word, callback) {
@@ -152,6 +197,51 @@ describe('handing an API', function() {
       client.once('ready', function(remote, connection) {
         connectionId = connection.id
       })
+    })
+    it('can send error args', function(done) {
+      var connectionId
+      var api = {
+        say: function(word, callback) {
+          callback(new Error('success'))
+        }
+      }
+      server = new Server().listen(PORT)
+      server.once('connect', function(remote, connection) {
+        remote.say('cows.', function(err, value) {
+          assert.equal(err, 'Error: success')
+          server.shutdown(done)
+        })
+      })
+      client = new Client(api).connect(PORT)
+      client.once('ready', function(remote, connection) {
+        connectionId = connection.id
+      })
+    })
+    it('can use custom error serialisation', function(done) {
+      var connectionId
+      var api = {
+        say: function(callback) {
+          callback(new Error('success'))
+        }
+      }
+      server = new Server().listen(PORT)
+      server.once('connect', function(remote, connection) {
+        remote.say(function(err, value) {
+          assert.deepEqual(err, {name: 'Error', message: 'success'})
+          server.shutdown(done)
+        })
+      })
+      client = new Client(api).connect(PORT)
+      client.serializeError = function(error) {
+        return {
+          message: error.message,
+          name: error.name
+        }
+      }
+      client.once('ready', function(remote, connection) {
+        connectionId = connection.id
+      })
+
     })
   })
 })

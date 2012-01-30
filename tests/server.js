@@ -6,9 +6,9 @@ var Client = require('../lib/client')
 
 var dnode = require('dnode')
 var _ = require('underscore')
-var PORT = 5000
+var PORT = 6000
 
-var isPortTaken = function(PORT, callback) {
+var isPortTaken = function(port, callback) {
   var net = require('net')
   var tester = net.createServer()
   tester.once('error', function (err) {
@@ -24,7 +24,7 @@ var isPortTaken = function(PORT, callback) {
     })
     tester.close()
   })
-  tester.listen(PORT)
+  tester.listen(port)
 }
 
 describe('server', function() {
@@ -89,8 +89,10 @@ describe('server', function() {
   })
   describe('listening on a port', function() {
     it('will use callback when listening on port', function(done) {
-      server = new Server().listen(PORT, function() {
+      server = new Server().listen(PORT, function(err) {
+        assert.ok(!err)
         isPortTaken(PORT, function(err, isTaken) {
+          console.log(err)
           assert.ok(!err)
           assert.ok(isTaken)
           done()
@@ -101,6 +103,7 @@ describe('server', function() {
       server = new Server().listen(PORT)
       server.on('ready', function() {
         isPortTaken(PORT, function(err, isTaken) {
+          console.log(err)
           assert.ok(!err)
           assert.ok(isTaken)
           done()
