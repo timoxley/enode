@@ -29,10 +29,11 @@ so I wrapped them up in an 'easier' interface.
   but can also take a callback.
 * Using straight DNode on Node 0.6.x, if any of your remote calls callback with an `Error`
   the error arrive at the Client as an empty object. eNode finds `Error`
-  objects in the data you're returning in your callback, and calls
-  toString on them so at least you have some idea of what the error was.
-  If you want more information or a different serialisation method, you
-  can simply override `serializeError` on eNode Clients and Servers.
+  objects in the data you're returning in your remote callback, and uses
+  `err.toString()` to convert the Error into a String format like: 'Error: Some error
+  occurred'.
+  If you want to transmit more information about Errors, you can provide a different
+  serialisation method by simply overriding `serializeError` on eNode Clients & Servers.
 
 ## Usage
 
