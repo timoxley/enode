@@ -1,6 +1,6 @@
 #eNode
 
-eNode is a simple wrapper around [DNode](https://github.com/substack/dnode)/
+eNode is a simple wrapper around [DNode](https://github.com/substack/dnode) and
 [upnode](https://github.com/substack/upnode) functionality, simplifying 
 creation and operation of DNode Servers and Clients. I found that DNode
 used some confusing patterns and made certain operations complicated, 
@@ -12,8 +12,8 @@ so I wrapped them up in an 'easier' interface.
 * Automatic buffering of requests and reconnections on lost servers as provided
   by upnode is configured by default between Servers and Clients
 * All 'connection' handling code is done in the 'connect' event, and
-  unlike Dnode, the remote API will always be available in a `connect` event, 
-  if it exists.
+  unlike Dnode, the Servers/Clients don't return fire any callbacks/events 
+  until they have recieved the remote's API 
 * Remote API calls get passed remote API & connection properties in a `meta` property 
   as the last argument passed to every API call. This means you don't necessarily need to
   define your API inside the scope of connection handler to get access to
