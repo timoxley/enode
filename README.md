@@ -8,20 +8,73 @@ interface, IMO.
 ### Features and Differences from DNode
 
 * eNode makes a sharp distinction between Clients and Servers
-* Upnode's buffering/reconnecting functionality is set up automatically for
- Clients.
-* All 'connection' handling code is done in the 'connect' event, and the
-  remote api will always be present, if available.
-* Remote API calls get passed remote and connection properties so they don't 
-necessarily need to be defined inside the scope of connection handler.
+* Automatic buffering of requests and reconnections on lost servers as provided
+  by upnode is configured by default between Servers and Clients
+* All 'connection' handling code is done in the 'connect' event, and
+  unlike Dnode, the remote API will always be available in a `connect` event, 
+  if it exists.
+* Remote API calls get passed remote API & connection properties in a `meta` property 
+  as the last argument passed to every API call. This means you don't necessarily need to
+  define your API inside the scope of connection handler to get access to
+  connection/remote objects.
 * eNode servers automatically keep track of connections and disconnections, 
-accessible via the server's `connections` Array.
-* The `shutdown` function will shut down both servers and clients.
+  accessible via the server's `connections` Array.
+* The `shutdown` function will shut down both servers and clients, in
+  DNode this was a multistep process which fired multiple events. eNode
+  will fire 'shutdown'/return callback from `shutdown` when the connection
+  is properly shut down.
 * All operations take a callback which fires when ready, but also emits
- corresponding events. e.g. `shutdown()` will emit the 'shutdown' event,
-but can also take a callback.
+  corresponding events. e.g. `shutdown()` will emit the 'shutdown' event,
+  but can also take a callback.
+* Using straight DNode on Node 0.6.x, if any of your remote calls callback with an `Error`
+  the error arrive at the client as an empty object. eNode finds `Error`
+  objects in the data you're returning in your callback, and calls
+  toString on them so at least you have some idea of what the error was.
+  If you want more information or a different serialisation method, you
+  can simply override `serializeError` on eNode Clients and Servers.
 
 ## Usage
+
+### Create a server with an API
+
+```javascript
+
+var api = {
+  getSomeData: function(callback) {
+    callback(null, {data: 'some data'})
+  }
+}
+
+// create server and listen for connections on port 3000
+var server = new enode.Server(api).listen(3000) 
+
+```
+
+### Creating a client to connect to a server
+
+```javascript
+
+// connect to server running on port 3000
+var client = enode.Client().connect(3000)
+
+```
+
+### Executing remote commands from a server
+
+```javascript
+
+// execute 'getSomeData' from server
+
+client.once('ready', function(remote, connection) {
+  remote.getSomeData(function(err, returnedData) {
+    console.log(returnedData.data) // 'some data'
+  })
+})
+
+
+```
+
+## Example
 
 ### Server
 
