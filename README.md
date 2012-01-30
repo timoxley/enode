@@ -1,6 +1,7 @@
 #eNode
 
-eNode is a simple wrapper around DNode/upnode functionality, simplifying 
+eNode is a simple wrapper around [DNode](https://github.com/substack/dnode)/
+[upnode](https://github.com/substack/upnode) functionality, simplifying 
 creation and operation of DNode Servers and Clients. I found that DNode
 used some confusing patterns and made certain operations complicated, 
 so I wrapped them up in an 'easier' interface.
