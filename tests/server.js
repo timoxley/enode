@@ -92,7 +92,6 @@ describe('server', function() {
       server = new Server().listen(PORT, function(err) {
         assert.ok(!err)
         isPortTaken(PORT, function(err, isTaken) {
-          console.log(err)
           assert.ok(!err)
           assert.ok(isTaken)
           done()
@@ -103,7 +102,6 @@ describe('server', function() {
       server = new Server().listen(PORT)
       server.on('ready', function() {
         isPortTaken(PORT, function(err, isTaken) {
-          console.log(err)
           assert.ok(!err)
           assert.ok(isTaken)
           done()
