@@ -75,12 +75,20 @@ describe('server', function() {
         done()
       })
       server.listen(PORT, function() {
-        server.shutdown(function() {
-          server.shutdown(function() {
-            isPortTaken(PORT, function(err, isTaken) {
+        server.shutdown(function(err) {
+          assert.ok(!err)
+          server.shutdown(function(err) {
+            assert.ok(!err)
+            server.shutdown(function(err) {
               assert.ok(!err)
-              assert.ok(!isTaken)
-              done()
+              server.shutdown(function(err) {
+                assert.ok(!err)
+                isPortTaken(PORT, function(err, isTaken) {
+                  assert.ok(!err)
+                  assert.ok(!isTaken)
+                  done()
+                })
+              })
             })
           })
         })
