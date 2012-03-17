@@ -3,10 +3,13 @@
 var assert = require('assert')
 
 var async = require('async')
+var _ = require('underscore')
+
 var Server = require('../lib/server')
 var Client = require('../lib/client')
 
 var PORT = 5000
+
 describe('handing an API', function() {
   var server, client
   function shutdown(done) {
@@ -242,6 +245,17 @@ describe('handing an API', function() {
         connectionId = connection.id
       })
 
+    })
+  })
+  describe('exposing remote methods on "remote" property', function() {
+    beforeEach(function(done) {
+      server = new Server({isServer: 'server'}).listen(PORT, done)
+    })
+    beforeEach(function(done) {
+      client = new Client({isClient: 'client'}).connect(PORT, done)
+    })
+    it('client exposes remote server on "remote" property', function() {
+      assert.equal(client.remote.isServer, 'server')
     })
   })
 })
