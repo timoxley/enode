@@ -73,6 +73,15 @@ client.once('ready', function(server, connection) {
     // Output: 'Server got some info: Hello from client.'
   })
 })
+
+// you can also access the server's methods via the client's `remote` property (once
+the client has emit 'ready' or the connection() callback has run:
+client.once('ready', function() {
+  client.remote.sendInfo('Hello again from client!', function(err) {
+    // etc
+  })
+})
+
 ```
 
 ### Creating a Client that exposes an API and connecting to a Server
