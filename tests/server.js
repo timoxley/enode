@@ -118,6 +118,7 @@ describe('server', function() {
     })
 
   })
+
   describe('connections', function() {
     beforeEach(function(done) {
       server = new Server().listen(PORT, done)
