@@ -2,7 +2,7 @@
   "author": "Tim Oxley <secoif@gmail.com> (unit.io)",
   "name": "enode",
   "description": "Easier interface to dnode.",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "repository": {
     "type": "git",
     "url": "git@github.com:timoxley/enode.git"
