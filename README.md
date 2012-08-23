@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/timoxley/enode.png)](http://travis-ci.org/timoxley/enode)
 #eNode
 
 eNode is a simple wrapper around [DNode](https://github.com/substack/dnode) and
